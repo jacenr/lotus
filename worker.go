@@ -2,6 +2,7 @@ package lotus
 
 import "sync"
 
+// WorkerManager a worker manager object
 type WorkerManager struct {
 	Num int           // the number of workers
 	Ch  chan func()   // func channel from which worker get work to run
@@ -10,6 +11,7 @@ type WorkerManager struct {
 	//Cx  context.Context // to concel all wokers by context
 }
 
+// NewWorker used for init WokerManager
 func NewWorker(n int) *WorkerManager {
 	wm := &WorkerManager{}
 	wm.Num = n
@@ -22,12 +24,12 @@ func NewWorker(n int) *WorkerManager {
 	cl := make(chan struct{}, 0)
 	wm.Cl = cl
 
-	wg := sync.WaitGroup{}
-	wm.WG = wg
+	wm.WG = sync.WaitGroup{}
 
 	return wm
 }
 
+// StartWork used for start workers
 func (wm *WorkerManager) StartWork() {
 	for i := 0; i < wm.Num; i++ {
 		wm.WG.Add(1)
@@ -50,10 +52,12 @@ func (wm *WorkerManager) StartWork() {
 	}
 }
 
+// ForceEndWorker force to end workers
 func (wm *WorkerManager) ForceEndWorker() {
 	close(wm.Cl)
 }
 
+// EndWorkerAndWait wait all worker complete
 func (wm *WorkerManager) EndWorkerAndWait() {
 	close(wm.Ch)
 	wm.WG.Wait()
